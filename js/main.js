@@ -7,9 +7,8 @@ var vm = new Vue({
 
     // mock up the user - this well eventually come from the database UMS (user management system)
     user: {
-      isAdmin: false,
-      avatar: null,
-      isLoggedIn: true
+      isLoggedIn: true,
+      settings: {}
     },
 
 
@@ -20,10 +19,35 @@ var vm = new Vue({
       { name: "Marvel's The Avengers", thumb: "avengers.jpg", vidsource: "avengers.mp4", description: "will they make black widow action figures this time?" }
     ],
 
+    videotitle: "video title goes here",
+    vidsource: "",
+    videodescription: "video description here",
+
+
     showDetails: false
   },
 
+  created: function() {
+    // run a fetch call and get the user data
+    console.log('created lifecycle hook fired here, go get user data');
+    this.getUserData();
+  },
+
   methods: {
+    getUserData() {
+      // do a fetch call here and get the user from the DB
+      const url = './includes/index.php?getUser=1';
+
+      fetch(url) // get data from the DB
+      .then(res => res.json()) // translate JSON from DB to plain object
+      .then(data => { // use the plain data object (the user)
+        console.log(data); // log it to the console (testing)
+
+        // put our DB data into Vue
+        this.user.settings = data[0];
+      })
+      .catch((error) => console.error(error))
+    },
     setUserPrefs() {
       // this is the preferences control, hit the api when ready (or use a component)
       console.log('set user prefs here');
@@ -37,6 +61,16 @@ var vm = new Vue({
       // the expression evaute to true or false - if it's true, set the value equal to
       // the left of the colon. if it's false, set the value equal to the right.
       this.user.isLoggedIn = (this.user.isLoggedIn) ? false : true;
+    },
+
+    showMovieDetails({name, vidsource, description}) {
+
+      this.videotitle = name;
+      this.vidsource = vidsource;
+      this.videodescription = description;
+      
+      // make the movie details show up
+      this.showDetails = true;
     }
 
   }
